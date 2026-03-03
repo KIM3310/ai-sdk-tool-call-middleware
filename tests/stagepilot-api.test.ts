@@ -63,8 +63,56 @@ function sendStalledPlanRequest(options: {
   return new Promise((resolve, reject) => {
     const socket = new Socket();
     let rawResponse = "";
+    let settled = false;
+
+    const parseRawResponse = () => {
+      const [head, body = ""] = rawResponse.split("\r\n\r\n");
+      const match = head.match(HTTP_STATUS_LINE_REGEX);
+      if (!match) {
+        return null;
+      }
+
+      const headers = Object.fromEntries(
+        head
+          .split("\r\n")
+          .slice(1)
+          .map((line) => {
+            const separator = line.indexOf(":");
+            if (separator < 0) {
+              return null;
+            }
+            const key = line.slice(0, separator).trim().toLowerCase();
+            const value = line.slice(separator + 1).trim();
+            return [key, value] as const;
+          })
+          .filter((entry): entry is readonly [string, string] => entry !== null)
+      );
+
+      return {
+        body,
+        headers,
+        statusCode: Number.parseInt(match[1] ?? "0", 10),
+      };
+    };
+
+    const finish = (value: {
+      body: string;
+      headers: Record<string, string>;
+      statusCode: number;
+    }) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      socket.destroy();
+      resolve(value);
+    };
 
     const fail = (error: Error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
       socket.destroy();
       reject(error);
     };
@@ -94,38 +142,24 @@ function sendStalledPlanRequest(options: {
     });
 
     socket.on("error", (error) => {
+      const networkError = error as NodeJS.ErrnoException;
+      if (networkError.code === "ECONNRESET") {
+        const parsed = parseRawResponse();
+        if (parsed) {
+          finish(parsed);
+          return;
+        }
+      }
       fail(error);
     });
 
     socket.on("end", () => {
-      const [head, body = ""] = rawResponse.split("\r\n\r\n");
-      const match = head.match(HTTP_STATUS_LINE_REGEX);
-      if (!match) {
+      const parsed = parseRawResponse();
+      if (!parsed) {
         reject(new Error(`unable to parse response: ${rawResponse}`));
         return;
       }
-
-      const headers = Object.fromEntries(
-        head
-          .split("\r\n")
-          .slice(1)
-          .map((line) => {
-            const separator = line.indexOf(":");
-            if (separator < 0) {
-              return null;
-            }
-            const key = line.slice(0, separator).trim().toLowerCase();
-            const value = line.slice(separator + 1).trim();
-            return [key, value] as const;
-          })
-          .filter((entry): entry is readonly [string, string] => entry !== null)
-      );
-
-      resolve({
-        body,
-        headers,
-        statusCode: Number.parseInt(match[1] ?? "0", 10),
-      });
+      finish(parsed);
     });
   });
 }

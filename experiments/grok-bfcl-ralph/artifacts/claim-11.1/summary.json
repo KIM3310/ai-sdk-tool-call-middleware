@@ -1,10 +1,5 @@
 {
-  "categories": [
-    "multiple",
-    "parallel",
-    "parallel_multiple",
-    "simple_python"
-  ],
+  "categories": ["multiple", "parallel", "parallel_multiple", "simple_python"],
   "cases_per_category": 3,
   "metrics_percent_point": {
     "Overall Acc": {
