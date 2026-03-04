@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import json
 import runpy
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import ModuleType
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -34,6 +36,58 @@ run_generation_and_eval = MOD["run_generation_and_eval"]
 
 
 class TestRunGrokBfclRalph(unittest.TestCase):
+    def _patch_bfcl_runtime_modules(self, generation_main, evaluation_main):
+        bfcl_eval = ModuleType("bfcl_eval")
+        bfcl_eval.__path__ = []
+
+        llm_generation = ModuleType("bfcl_eval._llm_response_generation")
+        llm_generation.main = generation_main
+
+        eval_checker = ModuleType("bfcl_eval.eval_checker")
+        eval_checker.__path__ = []
+        eval_runner = ModuleType("bfcl_eval.eval_checker.eval_runner")
+        eval_runner.main = evaluation_main
+        eval_checker.eval_runner = eval_runner
+
+        constants_pkg = ModuleType("bfcl_eval.constants")
+        constants_pkg.__path__ = []
+        eval_config = ModuleType("bfcl_eval.constants.eval_config")
+        eval_config.DOTENV_PATH = Path("/tmp/.env")
+        default_prompts = ModuleType("bfcl_eval.constants.default_prompts")
+        default_prompts.MAXIMUM_STEP_LIMIT = 20
+        constants_pkg.eval_config = eval_config
+        constants_pkg.default_prompts = default_prompts
+
+        model_handler = ModuleType("bfcl_eval.model_handler")
+        model_handler.__path__ = []
+        base_handler = ModuleType("bfcl_eval.model_handler.base_handler")
+        base_handler.MAXIMUM_STEP_LIMIT = 20
+        model_handler.base_handler = base_handler
+
+        dotenv_mod = ModuleType("dotenv")
+        dotenv_mod.load_dotenv = lambda **_kwargs: None
+
+        bfcl_eval._llm_response_generation = llm_generation
+        bfcl_eval.eval_checker = eval_checker
+        bfcl_eval.constants = constants_pkg
+        bfcl_eval.model_handler = model_handler
+
+        return patch.dict(
+            sys.modules,
+            {
+                "bfcl_eval": bfcl_eval,
+                "bfcl_eval._llm_response_generation": llm_generation,
+                "bfcl_eval.eval_checker": eval_checker,
+                "bfcl_eval.eval_checker.eval_runner": eval_runner,
+                "bfcl_eval.constants": constants_pkg,
+                "bfcl_eval.constants.eval_config": eval_config,
+                "bfcl_eval.constants.default_prompts": default_prompts,
+                "bfcl_eval.model_handler": model_handler,
+                "bfcl_eval.model_handler.base_handler": base_handler,
+                "dotenv": dotenv_mod,
+            },
+        )
+
     def test_parse_categories_dedup_preserves_first_order(self) -> None:
         got = parse_categories("simple_python,multiple,simple_python,parallel,,multiple")
         self.assertEqual(got, ["simple_python", "multiple", "parallel"])
@@ -373,9 +427,10 @@ class TestRunGrokBfclRalph(unittest.TestCase):
         original_verify = run_generation_and_eval.__globals__["verify_generation_health"]
         run_generation_and_eval.__globals__["verify_generation_health"] = fake_verify
         try:
-            with patch("dotenv.load_dotenv", lambda **kwargs: None), patch(
-                "bfcl_eval._llm_response_generation.main", fake_generation_main
-            ), patch("bfcl_eval.eval_checker.eval_runner.main", fake_eval_main):
+            with self._patch_bfcl_runtime_modules(
+                fake_generation_main,
+                fake_eval_main,
+            ):
                 with self.assertRaises(SystemExit):
                     run_generation_and_eval(
                         baseline_registry=baseline,
@@ -408,9 +463,10 @@ class TestRunGrokBfclRalph(unittest.TestCase):
         def fake_eval_main(*_args, **_kwargs):
             raise AssertionError("evaluation_main should not run when generation crashes")
 
-        with patch("dotenv.load_dotenv", lambda **kwargs: None), patch(
-            "bfcl_eval._llm_response_generation.main", fake_generation_main
-        ), patch("bfcl_eval.eval_checker.eval_runner.main", fake_eval_main):
+        with self._patch_bfcl_runtime_modules(
+            fake_generation_main,
+            fake_eval_main,
+        ):
             with self.assertRaises(SystemExit) as ctx:
                 run_generation_and_eval(
                     baseline_registry=baseline,
