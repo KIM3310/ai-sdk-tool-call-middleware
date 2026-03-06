@@ -42,6 +42,12 @@ interface ParsedRequestUrl {
   pathname: string;
 }
 
+interface RouteDescriptor {
+  method: "GET" | "POST";
+  path: string;
+  purpose: string;
+}
+
 export interface StagePilotEngineLike {
   run(input: IntakeInput): Promise<StagePilotResult>;
 }
@@ -99,6 +105,9 @@ const RISK_TYPES: RiskType[] = [
 ];
 const INBOX_MESSAGE_COMMAND_REGEX = /^\/?([a-zA-Z-]+)\s*(.*)$/;
 const LEADING_SLASHES_REGEX = /^\/+/;
+const BENCHMARK_DEFAULT_CASE_COUNT = 24;
+const BENCHMARK_DEFAULT_MAX_LOOP_ATTEMPTS = 2;
+const BENCHMARK_DEFAULT_SEED = 20_260_228;
 
 class HttpError extends Error {
   readonly statusCode: number;
@@ -137,22 +146,48 @@ function isRiskType(value: string): value is RiskType {
   return RISK_TYPES.includes(value as RiskType);
 }
 
+function toNonEmptyString(value: string | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 function sendJson(
   response: ServerResponse,
   statusCode: number,
-  payload: JsonObject
+  payload: JsonObject,
+  options?: {
+    includeBody?: boolean;
+  }
 ): void {
   response.statusCode = statusCode;
   response.setHeader("Content-Type", JSON_CONTENT_TYPE);
   if (CLOSE_CONNECTION_STATUS_CODES.has(statusCode)) {
     response.setHeader("Connection", "close");
   }
+  if (options?.includeBody === false) {
+    response.end();
+    return;
+  }
   response.end(`${JSON.stringify(payload)}\n`);
 }
 
-function sendHtml(response: ServerResponse, statusCode: number, html: string) {
+function sendHtml(
+  response: ServerResponse,
+  statusCode: number,
+  html: string,
+  options?: {
+    includeBody?: boolean;
+  }
+) {
   response.statusCode = statusCode;
   response.setHeader("Content-Type", HTML_CONTENT_TYPE);
+  if (options?.includeBody === false) {
+    response.end();
+    return;
+  }
   response.end(html);
 }
 
@@ -353,20 +388,130 @@ function extractBenchmarkOptions(body: unknown): Required<BenchmarkOptions> {
   const record = body && typeof body === "object" ? (body as JsonObject) : {};
   return {
     caseCount: readInteger(record.caseCount, {
-      fallback: Number.parseInt(process.env.BENCHMARK_CASES ?? "24", 10) || 24,
+      fallback:
+        Number.parseInt(
+          process.env.BENCHMARK_CASES ?? String(BENCHMARK_DEFAULT_CASE_COUNT),
+          10
+        ) || BENCHMARK_DEFAULT_CASE_COUNT,
       max: 200,
       min: 1,
     }),
     maxLoopAttempts: readInteger(record.maxLoopAttempts, {
-      fallback: 2,
+      fallback: BENCHMARK_DEFAULT_MAX_LOOP_ATTEMPTS,
       max: 5,
       min: 2,
     }),
     seed: readInteger(record.seed, {
-      fallback: 20_260_228,
+      fallback: BENCHMARK_DEFAULT_SEED,
       max: 2_147_483_647,
       min: 1,
     }),
+  };
+}
+
+function buildRouteDescriptors(): RouteDescriptor[] {
+  return [
+    {
+      method: "GET",
+      path: "/demo",
+      purpose: "Interactive StagePilot judge console",
+    },
+    {
+      method: "GET",
+      path: "/health",
+      purpose: "Lightweight service health probe",
+    },
+    {
+      method: "GET",
+      path: "/v1/meta",
+      purpose: "Runtime defaults, routes, and integration readiness",
+    },
+    {
+      method: "POST",
+      path: "/v1/plan",
+      purpose: "Run StagePilot planning and routing",
+    },
+    {
+      method: "POST",
+      path: "/v1/benchmark",
+      purpose: "Run benchmark harness over sample cases",
+    },
+    {
+      method: "POST",
+      path: "/v1/insights",
+      purpose: "Derive Gemini-backed narrative insights",
+    },
+    {
+      method: "POST",
+      path: "/v1/whatif",
+      purpose: "Simulate staffing and demand deltas",
+    },
+    {
+      method: "POST",
+      path: "/v1/notify",
+      purpose: "Deliver StagePilot result through OpenClaw channel",
+    },
+    {
+      method: "POST",
+      path: "/v1/openclaw/inbox",
+      purpose: "Accept inbox-style commands and optional replies",
+    },
+  ];
+}
+
+function buildMetaPayload(): JsonObject {
+  const geminiTimeoutMs = readGeminiHttpTimeoutMs(
+    process.env.GEMINI_HTTP_TIMEOUT_MS
+  );
+  const bodyTimeoutMs = readBodyTimeoutMs(
+    process.env.STAGEPILOT_REQUEST_BODY_TIMEOUT_MS
+  );
+
+  return {
+    benchmarkDefaults: {
+      caseCount:
+        Number.parseInt(
+          process.env.BENCHMARK_CASES ?? String(BENCHMARK_DEFAULT_CASE_COUNT),
+          10
+        ) || BENCHMARK_DEFAULT_CASE_COUNT,
+      maxLoopAttempts: BENCHMARK_DEFAULT_MAX_LOOP_ATTEMPTS,
+      seed: BENCHMARK_DEFAULT_SEED,
+    },
+    features: {
+      benchmark: true,
+      insights: true,
+      notify: true,
+      openClawInbox: true,
+      whatIf: true,
+    },
+    integrations: {
+      gemini: {
+        hasApiKey:
+          typeof process.env.GEMINI_API_KEY === "string" &&
+          process.env.GEMINI_API_KEY.trim().length > 0,
+        timeoutMs: geminiTimeoutMs,
+      },
+      openClaw: {
+        configured:
+          Boolean(toNonEmptyString(process.env.OPENCLAW_WEBHOOK_URL)) ||
+          Boolean(toNonEmptyString(process.env.OPENCLAW_CMD)),
+        hasApiKey:
+          typeof process.env.OPENCLAW_API_KEY === "string" &&
+          process.env.OPENCLAW_API_KEY.trim().length > 0,
+        hasWebhookUrl: Boolean(
+          toNonEmptyString(process.env.OPENCLAW_WEBHOOK_URL)
+        ),
+      },
+    },
+    model: process.env.GEMINI_MODEL ?? "gemini-2.5-pro",
+    ok: true,
+    requestLimits: {
+      bodyBytes: DEFAULT_BODY_LIMIT_BYTES,
+      bodyTimeoutMs,
+    },
+    routes: buildRouteDescriptors(),
+    service: process.env.SERVICE_NAME_API ?? "stagepilot-api",
+    useGpu: false,
   };
 }
 
@@ -780,17 +925,25 @@ function buildInboxReplyMessage(options: {
   return lines.join("\n");
 }
 
-function handleHealthRequest(response: ServerResponse) {
-  sendJson(response, 200, {
-    model: process.env.GEMINI_MODEL ?? "gemini-2.5-pro",
-    ok: true,
-    service: process.env.SERVICE_NAME_API ?? "stagepilot-api",
-    useGpu: false,
-  });
+function handleHealthRequest(
+  response: ServerResponse,
+  options?: { includeBody?: boolean }
+) {
+  sendJson(response, 200, buildMetaPayload(), options);
 }
 
-function handleDemoRequest(response: ServerResponse) {
-  sendHtml(response, 200, renderStagePilotDemoHtml());
+function handleMetaRequest(
+  response: ServerResponse,
+  options?: { includeBody?: boolean }
+) {
+  sendJson(response, 200, buildMetaPayload(), options);
+}
+
+function handleDemoRequest(
+  response: ServerResponse,
+  options?: { includeBody?: boolean }
+) {
+  sendHtml(response, 200, renderStagePilotDemoHtml(), options);
 }
 
 async function handlePlanRequest(options: {
@@ -1195,13 +1348,18 @@ async function handleRequest(options: {
   const method = request.method ?? "GET";
   const { pathname } = parseRequestUrl(request.url);
 
-  if (method === "GET" && pathname === "/demo") {
-    handleDemoRequest(response);
+  if ((method === "GET" || method === "HEAD") && pathname === "/demo") {
+    handleDemoRequest(response, { includeBody: method !== "HEAD" });
     return;
   }
 
-  if (method === "GET" && pathname === "/health") {
-    handleHealthRequest(response);
+  if ((method === "GET" || method === "HEAD") && pathname === "/health") {
+    handleHealthRequest(response, { includeBody: method !== "HEAD" });
+    return;
+  }
+
+  if ((method === "GET" || method === "HEAD") && pathname === "/v1/meta") {
+    handleMetaRequest(response, { includeBody: method !== "HEAD" });
     return;
   }
 

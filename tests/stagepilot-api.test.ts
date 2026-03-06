@@ -5,8 +5,12 @@ import { StagePilotEngine } from "../src/stagepilot/orchestrator";
 
 const serversToClose: ReturnType<typeof createStagePilotApiServer>[] = [];
 const BODY_TIMEOUT_ENV_KEY = "STAGEPILOT_REQUEST_BODY_TIMEOUT_MS";
+const GEMINI_TIMEOUT_ENV_KEY = "GEMINI_HTTP_TIMEOUT_MS";
+const OPENCLAW_WEBHOOK_ENV_KEY = "OPENCLAW_WEBHOOK_URL";
 const BODY_TIMEOUT_ENV_SNAPSHOT = process.env[BODY_TIMEOUT_ENV_KEY];
+const GEMINI_TIMEOUT_ENV_SNAPSHOT = process.env[GEMINI_TIMEOUT_ENV_KEY];
 const HTTP_STATUS_LINE_REGEX = /^HTTP\/1\.1 (\d{3})/m;
+const OPENCLAW_WEBHOOK_ENV_SNAPSHOT = process.env[OPENCLAW_WEBHOOK_ENV_KEY];
 
 afterEach(async () => {
   await Promise.all(
@@ -21,6 +25,18 @@ afterEach(async () => {
     delete process.env[BODY_TIMEOUT_ENV_KEY];
   } else {
     process.env[BODY_TIMEOUT_ENV_KEY] = BODY_TIMEOUT_ENV_SNAPSHOT;
+  }
+
+  if (typeof GEMINI_TIMEOUT_ENV_SNAPSHOT === "undefined") {
+    delete process.env[GEMINI_TIMEOUT_ENV_KEY];
+  } else {
+    process.env[GEMINI_TIMEOUT_ENV_KEY] = GEMINI_TIMEOUT_ENV_SNAPSHOT;
+  }
+
+  if (typeof OPENCLAW_WEBHOOK_ENV_SNAPSHOT === "undefined") {
+    delete process.env[OPENCLAW_WEBHOOK_ENV_KEY];
+  } else {
+    process.env[OPENCLAW_WEBHOOK_ENV_KEY] = OPENCLAW_WEBHOOK_ENV_SNAPSHOT;
   }
 });
 
@@ -299,6 +315,23 @@ describe("stagepilot api server", () => {
     expect(html).toContain("/v1/whatif");
   });
 
+  it("supports HEAD for desktop demo page", async () => {
+    const { baseUrl } = await startServer({
+      engine: new StagePilotEngine(),
+    });
+
+    const response = await fetch(`${baseUrl}/demo`, {
+      method: "HEAD",
+    });
+    expect(response.status).toBe(200);
+
+    const contentType = response.headers.get("content-type") ?? "";
+    expect(contentType).toContain("text/html");
+
+    const html = await response.text();
+    expect(html).toBe("");
+  });
+
   it("returns health response", async () => {
     const { baseUrl } = await startServer({
       engine: new StagePilotEngine(),
@@ -316,6 +349,85 @@ describe("stagepilot api server", () => {
     expect(body.ok).toBe(true);
     expect(body.service).toBeTypeOf("string");
     expect(body.useGpu).toBe(false);
+  });
+
+  it("supports HEAD for health response", async () => {
+    const { baseUrl } = await startServer({
+      engine: new StagePilotEngine(),
+    });
+
+    const response = await fetch(`${baseUrl}/health`, {
+      method: "HEAD",
+    });
+    expect(response.status).toBe(200);
+
+    const contentType = response.headers.get("content-type") ?? "";
+    expect(contentType).toContain("application/json");
+
+    const body = await response.text();
+    expect(body).toBe("");
+  });
+
+  it("returns runtime meta for integrations and routes", async () => {
+    process.env.GEMINI_HTTP_TIMEOUT_MS = "4321";
+    process.env.STAGEPILOT_REQUEST_BODY_TIMEOUT_MS = "2100";
+    process.env.OPENCLAW_WEBHOOK_URL = "https://example.invalid/webhook";
+
+    const { baseUrl } = await startServer({
+      engine: new StagePilotEngine(),
+    });
+
+    const response = await fetch(`${baseUrl}/v1/meta`);
+    expect(response.status).toBe(200);
+
+    const body = (await response.json()) as {
+      integrations: {
+        gemini: {
+          timeoutMs: number;
+        };
+        openClaw: {
+          configured: boolean;
+          hasWebhookUrl: boolean;
+        };
+      };
+      ok: boolean;
+      requestLimits: {
+        bodyTimeoutMs: number;
+      };
+      routes: Array<{
+        method: string;
+        path: string;
+      }>;
+    };
+
+    expect(body.ok).toBe(true);
+    expect(body.requestLimits.bodyTimeoutMs).toBe(2100);
+    expect(body.integrations.gemini.timeoutMs).toBe(4321);
+    expect(body.integrations.openClaw.configured).toBe(true);
+    expect(body.integrations.openClaw.hasWebhookUrl).toBe(true);
+    expect(body.routes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ method: "GET", path: "/v1/meta" }),
+        expect.objectContaining({ method: "POST", path: "/v1/plan" }),
+      ])
+    );
+  });
+
+  it("supports HEAD for runtime meta response", async () => {
+    const { baseUrl } = await startServer({
+      engine: new StagePilotEngine(),
+    });
+
+    const response = await fetch(`${baseUrl}/v1/meta`, {
+      method: "HEAD",
+    });
+    expect(response.status).toBe(200);
+
+    const contentType = response.headers.get("content-type") ?? "";
+    expect(contentType).toContain("application/json");
+
+    const body = await response.text();
+    expect(body).toBe("");
   });
 
   it("runs planning endpoint", async () => {
