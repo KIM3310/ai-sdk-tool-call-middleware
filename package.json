@@ -44,10 +44,11 @@
     "access": "public"
   },
   "scripts": {
-    "build": "npm run clean && tsup --tsconfig tsconfig.build.json",
-    "build:watch": "npm run clean && tsup --watch --tsconfig tsconfig.build.json",
-    "clean": "rimraf dist *.tsbuildinfo",
-    "typecheck": "tsc --noEmit",
+  "build": "npm run clean && tsup --tsconfig tsconfig.build.json",
+  "build:watch": "npm run clean && tsup --watch --tsconfig tsconfig.build.json",
+  "clean": "rimraf dist *.tsbuildinfo",
+  "clean:repo": "bash scripts/clean-local-artifacts.sh",
+  "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "check:biome": "biome check",
     "check:types": "tsc --noEmit",

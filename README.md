@@ -42,7 +42,21 @@ Note: there is no separate formal EOL announcement in releases/changelog for `v1
 - `experiments/openai-compatible-prompt-bfcl-ralph` generalizes the same RALPH pattern to OpenAI-compatible prompt-mode models that may not support native tools.
 - `experiments/kiro-cli-prompt-bfcl-ralph` applies the same BFCL prompt-mode baseline vs RALPH comparison through `kiro-cli chat`.
 - `experiments/prompt-bfcl-ralph-matrix` orchestrates many such runs and classifies models into improved / flat / regressed / failed.
-- Keep those two surfaces separate when describing results from this repo.
+- Keep the package, experiments, and operator tooling surfaces separate when describing results from this repo.
+
+## Repository layout
+
+| Path | Role |
+|---|---|
+| `src/` | Published parser/middleware code plus local API surfaces |
+| `src/api/` | BenchLab and StagePilot local operator/demo servers |
+| `src/stagepilot/` | StagePilot planning, benchmarking, and notification logic |
+| `examples/` | Runnable parser and RXML examples |
+| `experiments/` | BFCL prompt-mode research runners, configs, and tracked benchmark snapshots |
+| `docs/` | Hiring packet, StagePilot docs, and benchmark artifacts |
+| `scripts/` | Local setup, deploy, smoke-test, and cleanup utilities |
+
+Generated BFCL runtime directories such as `experiments/*/runtime*` are local-only artifacts and are ignored. Tracked benchmark snapshots live under stable folders like `artifacts/`.
 
 ## Hiring Packet
 
@@ -174,6 +188,21 @@ npm test
 ```
 
 Run `./scripts/dev-check.sh` for the fast lint+test loop used in CI.
+
+For local repo cleanup, run:
+
+```bash
+npm run clean:repo
+```
+
+This removes local build output, Python caches, BFCL runtime directories, and temporary pack artifacts without touching tracked benchmark snapshots.
+
+Common maintenance commands:
+
+```bash
+npm run clean
+npm run clean:repo
+```
 
 ## BenchLab Service
 

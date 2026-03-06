@@ -14,6 +14,11 @@ node_modules
 
 # Testing
 coverage
+.coverage
+.coverage.*
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 
 # Turbo
 .turbo
@@ -53,6 +58,7 @@ tasks
 # Debug artifacts
 .venv_*/
 .codex_runs/
+.venv/
 experiments/*/runtime/
 experiments/*/runtime-*/
 experiments/*/.pytest_cache/

@@ -1,10 +1,9 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { loadStaticHtmlTemplate } from "./static-html-template";
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const templatePath = join(currentDir, "stagepilot-demo.html");
-const htmlTemplate = readFileSync(templatePath, "utf8");
+const htmlTemplate = loadStaticHtmlTemplate(
+  import.meta.url,
+  "stagepilot-demo.html"
+);
 
 export function renderStagePilotDemoHtml(): string {
   return htmlTemplate;

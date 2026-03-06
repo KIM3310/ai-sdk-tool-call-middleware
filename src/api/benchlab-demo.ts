@@ -1,10 +1,9 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { loadStaticHtmlTemplate } from "./static-html-template";
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const templatePath = join(currentDir, "benchlab-demo.html");
-const htmlTemplate = readFileSync(templatePath, "utf8");
+const htmlTemplate = loadStaticHtmlTemplate(
+  import.meta.url,
+  "benchlab-demo.html"
+);
 
 export function renderBenchLabDemoHtml(): string {
   return htmlTemplate;
