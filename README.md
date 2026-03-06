@@ -1,11 +1,12 @@
-<img width="3168" height="1344" alt="AI SDK Tool monorepo banner" src="https://github.com/user-attachments/assets/9a002988-e535-42ac-8baf-56ec8754410f" />
+<img width="3168" height="1344" alt="AI SDK Tool Calling Lab banner" src="https://github.com/user-attachments/assets/9a002988-e535-42ac-8baf-56ec8754410f" />
 
 ----
 [![npm - parser](https://img.shields.io/npm/v/@ai-sdk-tool/parser)](https://www.npmjs.com/package/@ai-sdk-tool/parser)
 [![npm downloads - parser](https://img.shields.io/npm/dt/@ai-sdk-tool/parser)](https://www.npmjs.com/package/@ai-sdk-tool/parser)
-[![codecov](https://codecov.io/gh/minpeter/ai-sdk-tool-call-middleware/branch/main/graph/badge.svg)](https://codecov.io/gh/minpeter/ai-sdk-tool-call-middleware)
 
-AI SDK middleware for parsing tool calls from models that do not natively support `tools`.
+# AI SDK Tool Calling Lab
+
+Middleware, BFCL prompt-mode experiments, and local operator tooling for tool-calling workflows in AI SDK.
 
 ## Install
 
@@ -32,6 +33,24 @@ Note: there is no separate formal EOL announcement in releases/changelog for `v1
 |---|---|
 | `@ai-sdk-tool/parser` | Main middleware factory, preconfigured middleware, protocol exports |
 | `@ai-sdk-tool/parser/community` | Community middleware (Sijawara, UI-TARS) |
+
+## Scope note
+
+- The published package in this repository is the parser/middleware layer for models that do not natively support `tools`, or for models that behave more reliably with prompt-shaped tool protocols.
+- The benchmark folders under `experiments/` are separate research artifacts from the published package.
+- `experiments/grok-prompt-bfcl-ralph` measures **Grok BFCL prompt-mode function calling** with a RALPH loop prompt, not xAI native tools API performance.
+- `experiments/openai-compatible-prompt-bfcl-ralph` generalizes the same RALPH pattern to OpenAI-compatible prompt-mode models that may not support native tools.
+- `experiments/kiro-cli-prompt-bfcl-ralph` applies the same BFCL prompt-mode baseline vs RALPH comparison through `kiro-cli chat`.
+- `experiments/prompt-bfcl-ralph-matrix` orchestrates many such runs and classifies models into improved / flat / regressed / failed.
+- Keep those two surfaces separate when describing results from this repo.
+
+## Hiring Packet
+
+If you are using this repository as a portfolio artifact:
+
+- Hiring brief: `docs/HIRING_BRIEF.md`
+- Resume bullets: `docs/RESUME_BULLETS.md`
+- Interview talk track: `docs/INTERVIEW_TALK_TRACK.md`
 
 ## Quick start
 
@@ -155,6 +174,35 @@ npm test
 ```
 
 Run `./scripts/dev-check.sh` for the fast lint+test loop used in CI.
+
+## BenchLab Service
+
+`BenchLab` is the local operator UI/API for the BFCL prompt-mode matrix experiments in `experiments/prompt-bfcl-ralph-matrix`.
+
+Run it locally:
+
+```bash
+npm run api:benchlab
+```
+
+Then open `http://127.0.0.1:8090/benchlab`.
+
+What it does:
+- Launch `preflight` or `benchmark` jobs without shelling into the matrix runner manually.
+- List model config files such as `models.ollama.local.json` and `models.zero-cost.local.json`.
+- Track in-memory jobs, inspect runtime summaries, and read `matrix_report.md`.
+- Tail per-job `stdout/stderr` logs from the browser.
+
+Key endpoints:
+- `GET /benchlab`
+- `GET /health`
+- `GET /v1/benchlab/configs`
+- `GET /v1/benchlab/jobs`
+- `POST /v1/benchlab/jobs`
+- `POST /v1/benchlab/jobs/:id/cancel`
+- `GET /v1/benchlab/jobs/:id/logs`
+- `GET /v1/benchlab/runs`
+- `GET /v1/benchlab/runs/:name`
 
 Google-only hackathon environment bootstrap (interactive; values only):
 

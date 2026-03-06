@@ -1047,7 +1047,7 @@ def build_markdown_report(
     outcomes = compute_metric_outcomes(metrics)
 
     lines = [
-        "# Grok BFCL Benchmark Report",
+        "# Grok Prompt-Mode BFCL Benchmark Report",
         "",
         f"- Generated (UTC): {datetime.now(timezone.utc).isoformat()}",
         f"- Model: `{model_name}`",

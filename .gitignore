@@ -53,3 +53,7 @@ tasks
 # Debug artifacts
 .venv_*/
 .codex_runs/
+experiments/*/runtime/
+experiments/*/runtime-*/
+experiments/*/.pytest_cache/
+experiments/*/models.local.json

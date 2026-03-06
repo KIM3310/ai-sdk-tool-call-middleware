@@ -1,10 +1,26 @@
-# Grok Tool Performance 11.1% Improvement
+# Grok BFCL Prompt-Mode Function Calling 11.1% Improvement
 
-BFCL v4에서 Grok의 tool-calling 품질을 `baseline` 대비 `RALPH loop` 프롬프트로 비교/개선하는 프로젝트입니다.
+BFCL v4에서 Grok의 **prompt-mode function calling** 품질을 `baseline` 대비 `RALPH loop` 프롬프트로 비교한 실험입니다.
 
 - baseline: BFCL 기본 prompt 경로
 - ralph-loop: RALPH(Read/Align/List/Plan/Hard-check) 2-pass prompt 경로
-- 실행 스크립트: `run_grok_bfcl_ralph.py`
+- 실행 스크립트: `run_grok_prompt_bfcl_ralph.py`
+
+## What This Experiment Measures
+
+- BFCL `prompt mode`에서의 Grok 함수호출 정확도 비교
+- 동일 모델에 대해 baseline prompt vs RALPH loop prompt 비교
+- BFCL sampled run 기준 상대 향상폭 산출
+
+## What This Experiment Does Not Measure
+
+- xAI native `tools` / `tool_calls` API의 성능 개선
+- 이 레포 루트 패키지 `@ai-sdk-tool/parser` 자체의 벤치마크 결과
+- 다른 모델에 자동으로 일반화되는 보편적 향상폭
+
+범용 OpenAI-compatible prompt mode 실험은 sibling 폴더 `../openai-compatible-prompt-bfcl-ralph`를 사용합니다.
+
+여러 모델을 한 번에 비교하는 대규모 실험은 `../prompt-bfcl-ralph-matrix`를 사용합니다.
 
 ## Acknowledgment
 
@@ -34,9 +50,15 @@ This work was developed with reference to the original middleware repository:
 
 ## Benchmark Snapshot
 
-![Grok Tool Performance 11.1% Improvement Benchmark](https://raw.githubusercontent.com/KIM3310/Grok-Tool-Calling-Performance-11.1-/main/experiments/grok-bfcl-ralph/artifacts/claim-11.1/benchmark-11.1.svg)
+![Grok Prompt-Mode BFCL 11.1% Improvement Benchmark](https://raw.githubusercontent.com/KIM3310/ai-sdk-tool-calling-lab/main/experiments/grok-prompt-bfcl-ralph/artifacts/claim-11.1/benchmark-11.1.svg)
 
 ## Setup
+
+레포 루트 기준으로 아래처럼 변수 하나를 잡아두면 명령이 덜 헷갈립니다.
+
+```bash
+export REPO_ROOT="$(git rev-parse --show-toplevel)"
+```
 
 ### 1) BFCL 준비
 
@@ -58,9 +80,9 @@ export GROK_API_KEY="xai-..."
 
 ```bash
 /Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard/.venv311/bin/python \
-  /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph/run_grok_bfcl_ralph.py \
+  "$REPO_ROOT/experiments/grok-prompt-bfcl-ralph/run_grok_prompt_bfcl_ralph.py" \
   --bfcl-root /Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard \
-  --runtime-root /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph/runtime \
+  --runtime-root "$REPO_ROOT/experiments/grok-prompt-bfcl-ralph/runtime" \
   --model-name grok-4-latest \
   --categories simple_python,multiple,parallel,parallel_multiple \
   --cases-per-category 3 \
@@ -73,10 +95,10 @@ export GROK_API_KEY="xai-..."
 
 ```bash
 /Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard/.venv311/bin/python \
-  /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph/run_grok_bfcl_ralph.py \
+  "$REPO_ROOT/experiments/grok-prompt-bfcl-ralph/run_grok_prompt_bfcl_ralph.py" \
   --preflight-only \
   --bfcl-root /Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard \
-  --runtime-root /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph/runtime \
+  --runtime-root "$REPO_ROOT/experiments/grok-prompt-bfcl-ralph/runtime" \
   --model-name grok-4-latest \
   --categories simple_python,multiple,parallel \
   --cases-per-category 3
@@ -85,9 +107,9 @@ export GROK_API_KEY="xai-..."
 ## Debug & Test
 
 ```bash
-cd /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph
-/Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard/.venv311/bin/python -m py_compile run_grok_bfcl_ralph.py
-/Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard/.venv311/bin/python -m unittest -q test_run_grok_bfcl_ralph.py
+cd "$REPO_ROOT/experiments/grok-prompt-bfcl-ralph"
+/Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard/.venv311/bin/python -m py_compile run_grok_prompt_bfcl_ralph.py
+/Users/kim/Downloads/gorilla/berkeley-function-call-leaderboard/.venv311/bin/python -m unittest -q test_run_grok_prompt_bfcl_ralph.py
 ```
 
 ## Release Cleanup
@@ -95,12 +117,13 @@ cd /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-r
 생성 산출물 정리 + 키 문자열 스캔:
 
 ```bash
-cd /Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph
+cd "$REPO_ROOT/experiments/grok-prompt-bfcl-ralph"
 ./release_guard.sh --apply
 ```
 
 ## Notes
 
 - `python3`(시스템 인터프리터)가 아니라 BFCL `.venv311` Python으로 실행해야 합니다.
+- 이 실험은 코드상 `is_fc_model=False`로 등록되어 있으므로 BFCL prompt mode를 사용합니다.
 - 짧은 샘플 런(`cases-per-category=3`)은 API 상태에 따라 점수 변동이 생길 수 있습니다.
 - 업로드 전에는 반드시 키 회전 및 키 스캔을 권장합니다.

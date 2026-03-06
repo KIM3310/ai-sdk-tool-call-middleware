@@ -1,8 +1,8 @@
-# Grok BFCL Benchmark Report
+# Grok Prompt-Mode BFCL Benchmark Report
 
 - Generated (UTC): 2026-03-03T05:29:42.392787+00:00
 - Model: `grok-4-latest`
-- Runtime Root: `/Users/kim/Downloads/ai-sdk-tool-call-middleware-main/experiments/grok-bfcl-ralph/runtime-tune-v1`
+- Runtime Root: `/Users/kim/github_repos/ai-sdk-tool-calling-lab/experiments/grok-prompt-bfcl-ralph/runtime-tune-v1`
 - Categories: `multiple, parallel, parallel_multiple, simple_python`
 - Cases per category: `3`
 - Run-id mode: `enabled`

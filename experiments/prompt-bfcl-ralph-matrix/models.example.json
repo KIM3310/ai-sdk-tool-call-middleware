@@ -1,0 +1,50 @@
+{
+  "models": [
+    {
+      "id": "grok-4-latest",
+      "label": "Grok 4 Latest",
+      "kind": "grok",
+      "enabled": false,
+      "model_name": "grok-4-latest",
+      "api_key_env": "GROK_API_KEY"
+    },
+    {
+      "id": "openrouter-qwen3-coder",
+      "label": "OpenRouter Qwen3 Coder",
+      "kind": "openai-compatible",
+      "enabled": false,
+      "provider_name": "OpenRouter",
+      "provider_docs_url": "https://openrouter.ai/models",
+      "provider_license": "Proprietary",
+      "model_name": "qwen/qwen3-coder:free",
+      "base_url": "https://openrouter.ai/api/v1",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "default_headers_json_env": "OPENROUTER_DEFAULT_HEADERS"
+    },
+    {
+      "id": "local-llama-openai",
+      "label": "Local Llama OpenAI Shim",
+      "kind": "openai-compatible",
+      "enabled": false,
+      "provider_name": "Local",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "llama-tool-prompt",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key_env": "LOCAL_OPENAI_COMPAT_API_KEY",
+      "skip_model_check": true
+    },
+    {
+      "id": "kiro-cli-default",
+      "label": "Kiro CLI (Default Model)",
+      "kind": "kiro-cli",
+      "enabled": false,
+      "provider_name": "Kiro CLI",
+      "provider_docs_url": "https://kiro.dev/cli/",
+      "provider_license": "Proprietary",
+      "model_name": "kiro-cli-default",
+      "cli_path": "kiro-cli",
+      "trust_tools": ""
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "models": [
+    {
+      "id": "kiro-cli-default",
+      "label": "Kiro CLI (Preflight Only)",
+      "kind": "kiro-cli",
+      "enabled": true,
+      "provider_name": "Kiro CLI",
+      "provider_docs_url": "https://kiro.dev/cli/",
+      "provider_license": "Proprietary",
+      "model_name": "kiro-cli-default",
+      "cli_path": "kiro-cli",
+      "trust_tools": ""
+    },
+    {
+      "id": "ollama-llama3-2",
+      "label": "Ollama Llama 3.2",
+      "kind": "openai-compatible",
+      "enabled": true,
+      "provider_name": "Ollama",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "llama3.2:latest",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "dummy",
+      "skip_model_check": true
+    },
+    {
+      "id": "ollama-qwen2-5-1-5b",
+      "label": "Ollama Qwen 2.5 1.5B",
+      "kind": "openai-compatible",
+      "enabled": true,
+      "provider_name": "Ollama",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "qwen2.5:1.5b",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "dummy",
+      "skip_model_check": true
+    },
+    {
+      "id": "ollama-qwen3-5-4b",
+      "label": "Ollama Qwen 3.5 4B",
+      "kind": "openai-compatible",
+      "enabled": true,
+      "provider_name": "Ollama",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "qwen3.5:4b",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "dummy",
+      "skip_model_check": true
+    },
+    {
+      "id": "ollama-llama3-1-8b",
+      "label": "Ollama Meta Llama 3.1 8B",
+      "kind": "openai-compatible",
+      "enabled": true,
+      "provider_name": "Ollama",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "llama3.1:8b",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "dummy",
+      "skip_model_check": true
+    },
+    {
+      "id": "ollama-phi3",
+      "label": "Ollama Phi-3",
+      "kind": "openai-compatible",
+      "enabled": true,
+      "provider_name": "Ollama",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "phi3:latest",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "dummy",
+      "skip_model_check": true
+    },
+    {
+      "id": "ollama-gemma3-4b",
+      "label": "Ollama Gemma 3 4B",
+      "kind": "openai-compatible",
+      "enabled": true,
+      "provider_name": "Ollama",
+      "provider_docs_url": "http://127.0.0.1:11434",
+      "provider_license": "Custom",
+      "model_name": "gemma3:4b",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "dummy",
+      "skip_model_check": true
+    }
+  ]
+}

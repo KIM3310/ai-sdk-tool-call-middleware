@@ -1,4 +1,4 @@
-# Grok Tool Performance 11.1% Improvement
+# Grok BFCL Prompt-Mode Function Calling 11.1% Improvement
 
 ## Official Claim
 
@@ -24,3 +24,4 @@
 
 - BFCL v4 sampled run (`cases-per-category=3`)
 - categories: `simple_python,multiple,parallel,parallel_multiple`
+- mode: prompt-mode (`is_fc_model=False`)

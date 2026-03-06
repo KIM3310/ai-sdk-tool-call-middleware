@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BenchLab</title>
+    <style>
+    :root {
+      --bg: #f3eee5;
+      --bg-accent: #e2d4bf;
+      --panel: rgba(255, 252, 246, 0.88);
+      --panel-strong: rgba(255, 250, 240, 0.97);
+      --line: rgba(60, 45, 32, 0.16);
+      --text: #1f1812;
+      --muted: #6f6156;
+      --good: #1f7a43;
+      --bad: #b1432e;
+      --warn: #8c6417;
+      --flat: #555d68;
+      --accent: #8c3f2b;
+      --accent-2: #254c73;
+      --shadow: 0 20px 60px rgba(72, 48, 28, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(140, 63, 43, 0.12),
+          transparent 32%
+        ),
+        radial-gradient(
+          circle at top right,
+          rgba(37, 76, 115, 0.14),
+          transparent 28%
+        ),
+        linear-gradient(180deg, #f7f1e8 0%, var(--bg) 100%);
+    }
+
+    .shell {
+      display: grid;
+      gap: 18px;
+      width: min(1480px, calc(100vw - 32px));
+      margin: 24px auto;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      padding: 28px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 250, 241, 0.96),
+          rgba(249, 242, 231, 0.9)
+        ),
+        var(--panel);
+    }
+
+    .hero-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: end;
+      justify-content: space-between;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 3vw, 3.2rem);
+    }
+
+    .hero p,
+    .panel p,
+    .meta,
+    .tiny {
+      color: var(--muted);
+    }
+
+    .hero p {
+      max-width: 900px;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .pill-row,
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill,
+    .stat {
+      padding: 8px 14px;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .stat {
+      min-width: 132px;
+      padding: 12px 16px;
+      border-radius: 18px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 440px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(56, 36, 20, 0.18);
+      border-radius: 16px;
+    }
+
+    textarea {
+      min-height: 94px;
+      resize: vertical;
+    }
+
+    button {
+      padding: 12px 16px;
+      cursor: pointer;
+      border: 0;
+      border-radius: 16px;
+      transition:
+        transform 160ms ease,
+        opacity 160ms ease,
+        box-shadow 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.55;
+      transform: none;
+    }
+
+    .primary {
+      color: white;
+      background: linear-gradient(135deg, var(--accent), #b25d3d);
+      box-shadow: 0 12px 26px rgba(140, 63, 43, 0.22);
+    }
+
+    .secondary {
+      color: white;
+      background: linear-gradient(135deg, var(--accent-2), #35688e);
+      box-shadow: 0 12px 26px rgba(37, 76, 115, 0.2);
+    }
+
+    .ghost {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid var(--line);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .card-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+      border-radius: 999px;
+    }
+
+    .status-running {
+      color: var(--accent-2);
+      background: rgba(37, 76, 115, 0.12);
+      border-color: rgba(37, 76, 115, 0.18);
+    }
+
+    .status-completed,
+    .status-preflight_ok {
+      color: var(--good);
+      background: rgba(31, 122, 67, 0.12);
+      border-color: rgba(31, 122, 67, 0.18);
+    }
+
+    .status-failed,
+    .status-regressed {
+      color: var(--bad);
+      background: rgba(177, 67, 46, 0.12);
+      border-color: rgba(177, 67, 46, 0.18);
+    }
+
+    .status-flat {
+      color: var(--flat);
+      background: rgba(85, 93, 104, 0.12);
+      border-color: rgba(85, 93, 104, 0.18);
+    }
+
+    .status-improved {
+      color: var(--good);
+      background: rgba(31, 122, 67, 0.12);
+      border-color: rgba(31, 122, 67, 0.18);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .meta-item {
+      padding: 10px 12px;
+      background: rgba(244, 238, 229, 0.74);
+      border-radius: 14px;
+    }
+
+    .meta-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    pre {
+      padding: 16px;
+      margin: 0;
+      overflow: auto;
+      font-family: "SFMono-Regular", "JetBrains Mono", monospace;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: #f7f1e8;
+      background: #1f1d1a;
+      border-radius: 18px;
+    }
+
+    .report-shell {
+      display: grid;
+      gap: 12px;
+    }
+
+    .empty {
+      padding: 18px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+    }
+
+    .muted-link {
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+
+    .tiny {
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .field-grid,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .shell {
+        width: min(100vw - 20px, 100%);
+        margin: 10px auto 20px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-header">
+          <div>
+            <h1>BenchLab</h1>
+            <p>
+              Prompt-mode BFCL matrix lab for local and hosted models. Launch
+              preflight or benchmark runs, inspect regressions, and read reports
+              without touching the shell.
+            </p>
+          </div>
+          <div class="pill-row">
+            <span class="pill">Local-first</span>
+            <span class="pill">BFCL prompt-mode</span>
+            <span class="pill">RALPH baseline vs loop</span>
+          </div>
+        </div>
+        <div class="stat-row" id="headline-stats">
+          <div class="stat">
+            <strong>Loading</strong>
+            <div class="tiny">Fetching latest runs</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="layout">
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Launch Run</h2>
+              <button class="ghost" id="refresh-button" type="button">
+                Refresh
+              </button>
+            </div>
+            <form id="launch-form">
+              <div class="field-grid">
+                <label>
+                  Config
+                  <select id="models-file" name="modelsFile"></select>
+                </label>
+                <label>
+                  Mode
+                  <select id="mode" name="mode">
+                    <option value="benchmark">Benchmark</option>
+                    <option value="preflight">Preflight</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label>
+                  Cases / Category
+                  <input
+                    id="cases-per-category"
+                    name="casesPerCategory"
+                    type="number"
+                    min="0"
+                    value="5"
+                  >
+                </label>
+                <label>
+                  Runtime Name
+                  <input
+                    id="runtime-name"
+                    name="runtimeName"
+                    type="text"
+                    placeholder="runtime-ollama-live-10"
+                  >
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label>
+                  Model IDs (comma-separated)
+                  <input
+                    id="model-ids"
+                    name="modelIds"
+                    type="text"
+                    placeholder="ollama-llama3-2,ollama-qwen3-5-4b"
+                  >
+                </label>
+                <label>
+                  Categories (comma-separated)
+                  <input
+                    id="categories"
+                    name="categories"
+                    type="text"
+                    placeholder="simple_python,multiple,parallel,parallel_multiple"
+                  >
+                </label>
+              </div>
+
+              <div class="field-grid">
+                <label>
+                  Num Threads
+                  <input
+                    id="num-threads"
+                    name="numThreads"
+                    type="number"
+                    min="1"
+                    value="1"
+                  >
+                </label>
+                <label>
+                  Max Step Limit
+                  <input
+                    id="max-step-limit"
+                    name="maxStepLimit"
+                    type="number"
+                    min="1"
+                    value="20"
+                  >
+                </label>
+              </div>
+
+              <div class="actions">
+                <button class="primary" id="launch-button" type="submit">
+                  Start Job
+                </button>
+                <button class="secondary" id="preflight-button" type="button">
+                  Quick Preflight
+                </button>
+              </div>
+              <div class="tiny" id="launch-feedback"></div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Jobs</h2>
+              <span class="tiny" id="jobs-meta">live</span>
+            </div>
+            <div class="list" id="jobs-list">
+              <div class="empty">No jobs yet.</div>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Runtime Matrix</h2>
+              <span class="tiny" id="runs-meta">live</span>
+            </div>
+            <div class="list" id="runs-list">
+              <div class="empty">No runtimes found yet.</div>
+            </div>
+          </section>
+
+          <section class="panel report-shell">
+            <div class="panel-header">
+              <h2>Report</h2>
+              <span class="tiny" id="report-title">select a runtime</span>
+            </div>
+            <div class="meta-grid" id="report-meta"></div>
+            <pre
+              id="report-body"
+            >Pick a runtime to inspect its matrix report.</pre>
+          </section>
+
+          <section class="panel report-shell">
+            <div class="panel-header">
+              <h2>Job Logs</h2>
+              <span class="tiny" id="logs-title">select a job</span>
+            </div>
+            <div class="tiny" id="logs-meta">stdout + stderr</div>
+            <pre id="logs-body">Pick a job to inspect its execution logs.</pre>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+    "use strict";
+    const state = {
+      configs: [],
+      jobs: [],
+      runs: [],
+      selectedJobId: null,
+      selectedRun: null,
+    };
+
+    const els = {
+      casesPerCategory: document.querySelector("#cases-per-category"),
+      categories: document.querySelector("#categories"),
+      headlineStats: document.querySelector("#headline-stats"),
+      jobsList: document.querySelector("#jobs-list"),
+      jobsMeta: document.querySelector("#jobs-meta"),
+      launchButton: document.querySelector("#launch-button"),
+      launchFeedback: document.querySelector("#launch-feedback"),
+      launchForm: document.querySelector("#launch-form"),
+      maxStepLimit: document.querySelector("#max-step-limit"),
+      modelIds: document.querySelector("#model-ids"),
+      mode: document.querySelector("#mode"),
+      modelsFile: document.querySelector("#models-file"),
+      numThreads: document.querySelector("#num-threads"),
+      preflightButton: document.querySelector("#preflight-button"),
+      refreshButton: document.querySelector("#refresh-button"),
+      logsBody: document.querySelector("#logs-body"),
+      logsMeta: document.querySelector("#logs-meta"),
+      logsTitle: document.querySelector("#logs-title"),
+      reportBody: document.querySelector("#report-body"),
+      reportMeta: document.querySelector("#report-meta"),
+      reportTitle: document.querySelector("#report-title"),
+      runtimeName: document.querySelector("#runtime-name"),
+      runsList: document.querySelector("#runs-list"),
+      runsMeta: document.querySelector("#runs-meta"),
+    };
+
+    function statusClass(value) {
+      return `status-${String(value || "unknown").replace(/[^a-z0-9_]/gi, "_")}`;
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "-";
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+      return date.toLocaleString();
+    }
+
+    function safeJoin(values) {
+      if (!Array.isArray(values) || values.length === 0) {
+        return "-";
+      }
+      return values.join(", ");
+    }
+
+    async function fetchJson(path, options) {
+      const response = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...options,
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || `request failed: ${response.status}`);
+      }
+      return payload;
+    }
+
+    function renderHeadline() {
+      if (state.runs.length === 0) {
+        els.headlineStats.innerHTML =
+          '<div class="stat"><strong>No runs yet</strong><div class="tiny">Launch a preflight or benchmark.</div></div>';
+        return;
+      }
+
+      const latest = state.runs[0];
+      const counts = latest.counts || {};
+      els.headlineStats.innerHTML = [
+        { label: "Latest Runtime", value: latest.name },
+        { label: "Completed", value: String(counts.completed ?? 0) },
+        { label: "Improved", value: String(counts.improved ?? 0) },
+        { label: "Flat", value: String(counts.flat ?? 0) },
+        { label: "Regressed", value: String(counts.regressed ?? 0) },
+        { label: "Failed", value: String(counts.failed ?? 0) },
+      ]
+        .map(
+          (item) =>
+            `<div class="stat"><strong>${item.label}</strong><div>${item.value}</div></div>`
+        )
+        .join("");
+    }
+
+    function renderConfigs() {
+      const selected = els.modelsFile.value;
+      els.modelsFile.innerHTML = state.configs
+        .map((config) => {
+          const isSelected = selected
+            ? config.name === selected
+            : config.isRecommended;
+          return `<option value="${config.name}" ${isSelected ? "selected" : ""}>${config.name}${config.isRecommended ? " (recommended)" : ""}</option>`;
+        })
+        .join("");
+    }
+
+    function renderJobs() {
+      els.jobsMeta.textContent = `${state.jobs.length} tracked`;
+      if (state.jobs.length === 0) {
+        els.jobsList.innerHTML = '<div class="empty">No jobs yet.</div>';
+        return;
+      }
+
+      els.jobsList.innerHTML = state.jobs
+        .map((job) => {
+          const canCancel = job.status === "running";
+          return `
+              <article class="card">
+                <div class="card-top">
+                  <div class="card-title">
+                    <strong>${job.id}</strong>
+                    <span class="tiny">${job.mode} · ${job.runtimeName}</span>
+                  </div>
+                  <span class="badge ${statusClass(job.status)}">${job.status}</span>
+                </div>
+                <div class="meta-grid">
+                  <div class="meta-item"><strong>Models File</strong>${job.modelsFileName}</div>
+                  <div class="meta-item"><strong>Created</strong>${formatDate(job.createdAt)}</div>
+                  <div class="meta-item"><strong>Started</strong>${formatDate(job.startedAt)}</div>
+                  <div class="meta-item"><strong>Ended</strong>${formatDate(job.endedAt)}</div>
+                </div>
+                <div class="actions">
+                  <button class="ghost" type="button" data-run="${job.runtimeName}">Open Runtime</button>
+                  <button class="ghost" type="button" data-job="${job.id}">View Logs</button>
+                  ${canCancel ? `<button class="ghost" type="button" data-cancel="${job.id}">Cancel</button>` : ""}
+                </div>
+                ${job.errorMessage ? `<div class="tiny" style="color:var(--bad)">${job.errorMessage}</div>` : ""}
+              </article>
+            `;
+        })
+        .join("");
+    }
+
+    function renderRuns() {
+      els.runsMeta.textContent = `${state.runs.length} runtimes`;
+      if (state.runs.length === 0) {
+        els.runsList.innerHTML =
+          '<div class="empty">No runtimes found yet.</div>';
+        return;
+      }
+
+      els.runsList.innerHTML = state.runs
+        .map((run) => {
+          const counts = run.counts || {};
+          return `
+              <article class="card">
+                <div class="card-top">
+                  <div class="card-title">
+                    <strong>${run.name}</strong>
+                    <span class="tiny">${run.modelsFileName || "unknown config"}</span>
+                  </div>
+                  <span class="badge ${statusClass(run.primaryOutcome)}">${run.primaryOutcome}</span>
+                </div>
+                <div class="meta-grid">
+                  <div class="meta-item"><strong>Updated</strong>${formatDate(run.updatedAt)}</div>
+                  <div class="meta-item"><strong>Cases / Category</strong>${run.casesPerCategory ?? "-"}</div>
+                  <div class="meta-item"><strong>Counts</strong>C:${counts.completed ?? 0} I:${counts.improved ?? 0} F:${counts.flat ?? 0} R:${counts.regressed ?? 0}</div>
+                  <div class="meta-item"><strong>Categories</strong>${safeJoin(run.categories)}</div>
+                </div>
+                <div class="actions">
+                  <button class="ghost" type="button" data-run="${run.name}">Inspect</button>
+                </div>
+              </article>
+            `;
+        })
+        .join("");
+    }
+
+    function renderReport(run) {
+      state.selectedRun = run || null;
+      if (!run) {
+        els.reportTitle.textContent = "select a runtime";
+        els.reportMeta.innerHTML = "";
+        els.reportBody.textContent =
+          "Pick a runtime to inspect its matrix report.";
+        return;
+      }
+
+      const counts = run.counts || {};
+      els.reportTitle.textContent = run.name;
+      els.reportMeta.innerHTML = [
+        { label: "Config", value: run.modelsFileName || "-" },
+        { label: "Updated", value: formatDate(run.updatedAt) },
+        { label: "Cases", value: String(run.casesPerCategory ?? "-") },
+        {
+          label: "Counts",
+          value: `C:${counts.completed ?? 0} I:${counts.improved ?? 0} F:${counts.flat ?? 0} R:${counts.regressed ?? 0}`,
+        },
+      ]
+        .map(
+          (item) =>
+            `<div class="meta-item"><strong>${item.label}</strong>${item.value}</div>`
+        )
+        .join("");
+      els.reportBody.textContent =
+        run.reportMarkdown || "matrix_report.md not found";
+    }
+
+    function renderLogs(logs, jobId) {
+      state.selectedJobId = jobId || null;
+      if (!(logs && jobId)) {
+        els.logsTitle.textContent = "select a job";
+        els.logsMeta.textContent = "stdout + stderr";
+        els.logsBody.textContent = "Pick a job to inspect its execution logs.";
+        return;
+      }
+
+      const stdout = logs.stdout?.text || "";
+      const stderr = logs.stderr?.text || "";
+      const sections = [];
+      if (stdout) {
+        sections.push(["[stdout]", stdout].join("\n"));
+      }
+      if (stderr) {
+        sections.push(["[stderr]", stderr].join("\n"));
+      }
+      if (sections.length === 0) {
+        sections.push("No logs captured yet.");
+      }
+
+      els.logsTitle.textContent = jobId;
+      els.logsMeta.textContent = `runtime ${logs.runtimeName || "-"}`;
+      els.logsBody.textContent = sections.join("\n\n");
+    }
+
+    async function loadConfigs() {
+      const payload = await fetchJson("/v1/benchlab/configs");
+      state.configs = payload.configs || [];
+      renderConfigs();
+    }
+
+    async function loadJobs() {
+      const payload = await fetchJson("/v1/benchlab/jobs");
+      state.jobs = payload.jobs || [];
+      renderJobs();
+    }
+
+    async function loadRuns() {
+      const payload = await fetchJson("/v1/benchlab/runs");
+      state.runs = payload.runs || [];
+      renderRuns();
+      renderHeadline();
+
+      if (state.selectedRun) {
+        const matched = state.runs.find(
+          (run) => run.name === state.selectedRun.name
+        );
+        renderReport(matched || state.runs[0] || null);
+      } else {
+        renderReport(state.runs[0] || null);
+      }
+    }
+
+    async function loadJobLogs(jobId) {
+      const payload = await fetchJson(
+        `/v1/benchlab/jobs/${encodeURIComponent(jobId)}/logs?stream=both&maxBytes=20000`
+      );
+      renderLogs(payload.logs, jobId);
+    }
+
+    async function refreshAll() {
+      try {
+        await Promise.all([loadConfigs(), loadJobs(), loadRuns()]);
+        if (state.selectedJobId) {
+          const matchedJob = state.jobs.find(
+            (job) => job.id === state.selectedJobId
+          );
+          if (matchedJob) {
+            await loadJobLogs(matchedJob.id);
+          } else {
+            renderLogs(null, null);
+          }
+        } else {
+          renderLogs(null, null);
+        }
+        els.launchFeedback.textContent = "";
+      } catch (error) {
+        els.launchFeedback.textContent = error.message;
+      }
+    }
+
+    function buildJobPayload(modeOverride) {
+      const mode = modeOverride || els.mode.value;
+      return {
+        mode,
+        modelsFile: els.modelsFile.value,
+        casesPerCategory: Number.parseInt(
+          els.casesPerCategory.value || "0",
+          10
+        ),
+        runtimeName: els.runtimeName.value || undefined,
+        modelIds: els.modelIds.value
+          ? els.modelIds.value
+              .split(",")
+              .map((value) => value.trim())
+              .filter(Boolean)
+          : undefined,
+        categories: els.categories.value
+          ? els.categories.value
+              .split(",")
+              .map((value) => value.trim())
+              .filter(Boolean)
+          : undefined,
+        numThreads: Number.parseInt(els.numThreads.value || "1", 10),
+        maxStepLimit: Number.parseInt(els.maxStepLimit.value || "20", 10),
+      };
+    }
+
+    async function submitJob(modeOverride) {
+      els.launchButton.disabled = true;
+      els.preflightButton.disabled = true;
+      els.launchFeedback.textContent = "Starting job...";
+      try {
+        const payload = await fetchJson("/v1/benchlab/jobs", {
+          method: "POST",
+          body: JSON.stringify(buildJobPayload(modeOverride)),
+        });
+        state.selectedJobId = payload.job.id;
+        els.launchFeedback.textContent = `Started ${payload.job.id}`;
+        await refreshAll();
+      } catch (error) {
+        els.launchFeedback.textContent = error.message;
+      } finally {
+        els.launchButton.disabled = false;
+        els.preflightButton.disabled = false;
+      }
+    }
+
+    async function cancelJob(jobId) {
+      try {
+        await fetchJson(
+          `/v1/benchlab/jobs/${encodeURIComponent(jobId)}/cancel`,
+          {
+            method: "POST",
+          }
+        );
+        await refreshAll();
+      } catch (error) {
+        els.launchFeedback.textContent = error.message;
+      }
+    }
+
+    els.launchForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await submitJob();
+    });
+
+    els.preflightButton.addEventListener("click", async () => {
+      await submitJob("preflight");
+    });
+
+    els.refreshButton.addEventListener("click", async () => {
+      await refreshAll();
+    });
+
+    els.jobsList.addEventListener("click", async (event) => {
+      const button = event.target.closest("button");
+      if (!button) {
+        return;
+      }
+      if (button.dataset.run) {
+        const run = state.runs.find((item) => item.name === button.dataset.run);
+        renderReport(run || null);
+      }
+      if (button.dataset.job) {
+        await loadJobLogs(button.dataset.job);
+      }
+      if (button.dataset.cancel) {
+        await cancelJob(button.dataset.cancel);
+      }
+    });
+
+    els.runsList.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button?.dataset.run) {
+        return;
+      }
+      const run = state.runs.find((item) => item.name === button.dataset.run);
+      renderReport(run || null);
+    });
+
+    refreshAll();
+    setInterval(refreshAll, 5000);
+    </script>
+  </body>
+</html>

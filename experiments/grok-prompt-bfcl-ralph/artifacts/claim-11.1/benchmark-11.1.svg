@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Grok Tool Performance 11.1% Improvement benchmark chart">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Grok prompt-mode BFCL 11.1% improvement benchmark chart">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f8fbff"/>
@@ -8,7 +8,7 @@
   <rect x="0" y="0" width="1200" height="720" fill="url(#bg)"/>
 
   <text x="80" y="88" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#102a43">
-    Grok Tool Performance 11.1% Improvement
+    Grok Prompt-Mode BFCL 11.1% Improvement
   </text>
   <text x="80" y="128" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#334e68">
     BFCL sampled run (cases-per-category=3) | Overall Accuracy Comparison
@@ -37,6 +37,6 @@
   </text>
 
   <text x="80" y="682" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#627d98">
-    Source: experiments/grok-bfcl-ralph/artifacts/claim-11.1/summary.json
+    Source: experiments/grok-prompt-bfcl-ralph/artifacts/claim-11.1/summary.json
   </text>
 </svg>

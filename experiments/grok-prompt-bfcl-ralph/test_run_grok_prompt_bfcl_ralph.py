@@ -12,7 +12,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 
-SCRIPT_PATH = Path(__file__).resolve().parent / "run_grok_bfcl_ralph.py"
+SCRIPT_PATH = Path(__file__).resolve().parent / "run_grok_prompt_bfcl_ralph.py"
 MOD = runpy.run_path(str(SCRIPT_PATH))
 
 parse_categories = MOD["parse_categories"]
@@ -256,7 +256,7 @@ class TestRunGrokBfclRalph(unittest.TestCase):
             runtime_root=Path("/tmp/runtime"),
             run_ids_enabled=True,
         )
-        self.assertIn("# Grok BFCL Benchmark Report", report)
+        self.assertIn("# Grok Prompt-Mode BFCL Benchmark Report", report)
         self.assertIn("Verdict: `balanced`", report)
         self.assertIn("| Overall Acc | 60.00 | 65.00 | +5.00 |", report)
         self.assertIn("Best gain: `Overall Acc` (+5.00 pp)", report)
