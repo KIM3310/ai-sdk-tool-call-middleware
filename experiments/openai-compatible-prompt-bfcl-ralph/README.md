@@ -8,6 +8,17 @@ BFCL v4에서 **OpenAI-compatible prompt mode** 기준으로 baseline prompt와 
 
 여러 모델을 한 번에 돌리고 분류하려면 `../prompt-bfcl-ralph-matrix`를 사용합니다.
 
+## Checked-In Success Snapshot
+
+- `llama3.2:latest` on Ollama (`20` cases/category): `7.50 -> 7.62`, `+0.12pp`, `+1.6%` relative
+- Evidence:
+  - `artifacts/claim-ollama-llama3-2-20/summary.json`
+  - `artifacts/claim-ollama-llama3-2-20/benchmark_report.md`
+  - `artifacts/claim-ollama-llama3-2-20/data_overall.csv`
+  - `artifacts/claim-ollama-llama3-2-20/error_forensics.json`
+
+![Ollama Llama 3.2 Prompt-Mode BFCL Improvement](https://raw.githubusercontent.com/KIM3310/ai-sdk-tool-calling-lab/main/experiments/openai-compatible-prompt-bfcl-ralph/artifacts/claim-ollama-llama3-2-20/benchmark-ollama-llama3-2-20.svg)
+
 ## Required Environment
 
 ```bash

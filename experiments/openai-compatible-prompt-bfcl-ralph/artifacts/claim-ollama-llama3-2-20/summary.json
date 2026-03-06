@@ -1,0 +1,41 @@
+{
+  "categories": [
+    "multiple",
+    "parallel",
+    "parallel_multiple",
+    "simple_python"
+  ],
+  "cases_per_category": 20,
+  "metrics_percent_point": {
+    "Overall Acc": {
+      "baseline": 7.5,
+      "ralph": 7.62,
+      "delta": 0.12
+    },
+    "Non-Live AST Acc": {
+      "baseline": null,
+      "ralph": null,
+      "delta": null
+    },
+    "Live Acc": {
+      "baseline": 0.0,
+      "ralph": 0.0,
+      "delta": 0.0
+    },
+    "Multi Turn Acc": {
+      "baseline": 0.0,
+      "ralph": 0.0,
+      "delta": 0.0
+    },
+    "Relevance Detection": {
+      "baseline": null,
+      "ralph": null,
+      "delta": null
+    },
+    "Irrelevance Detection": {
+      "baseline": null,
+      "ralph": null,
+      "delta": null
+    }
+  }
+}

@@ -58,6 +58,17 @@ Note: there is no separate formal EOL announcement in releases/changelog for `v1
 
 Generated BFCL runtime directories such as `experiments/*/runtime*` are local-only artifacts and are ignored. Tracked benchmark snapshots live under stable folders like `artifacts/`.
 
+## Confirmed Gains
+
+Only checked-in BFCL prompt-mode artifacts are listed here.
+
+| Model | Benchmark | Baseline | RALPH | Delta (pp) | Relative delta |
+|---|---|---:|---:|---:|---:|
+| `grok-4-latest` | BFCL v4 prompt-mode, 3 cases/category | 7.50 | 8.33 | +0.83 | +11.1% |
+| `llama3.2:latest` | BFCL v4 prompt-mode, 20 cases/category | 7.50 | 7.62 | +0.12 | +1.6% |
+
+Full evidence, CSVs, markdown reports, and charts: `docs/TOOL_CALLING_GAINS.md`
+
 ## Hiring Packet
 
 If you are using this repository as a portfolio artifact:
