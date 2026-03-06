@@ -357,12 +357,18 @@ describe("stagepilot api server", () => {
         requestBodyTimeoutMs: number;
       };
       ok: boolean;
+      ops_contract: {
+        schema: string;
+      };
       service: string;
+      status: string;
       useGpu: boolean;
     };
 
     expect(body.ok).toBe(true);
     expect(body.service).toBeTypeOf("string");
+    expect(body.status).toBe("ok");
+    expect(body.ops_contract.schema).toBe("ops-envelope-v1");
     expect(body.useGpu).toBe(false);
     expect(body.diagnostics.integrationReady).toBe(false);
     expect(body.diagnostics.requestBodyTimeoutMs).toBe(1500);

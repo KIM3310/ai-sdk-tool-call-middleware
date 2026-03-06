@@ -523,12 +523,18 @@ function buildMetaPayload(): JsonObject {
           : `Configure ${missingIntegrations[0]} to unlock live planning diagnostics.`,
       requestBodyTimeoutMs: bodyTimeoutMs,
     },
+    ops_contract: {
+      schema: "ops-envelope-v1",
+      version: 1,
+      required_fields: ["service", "status", "diagnostics.nextAction"],
+    },
     requestLimits: {
       bodyBytes: DEFAULT_BODY_LIMIT_BYTES,
       bodyTimeoutMs,
     },
     routes: buildRouteDescriptors(),
     service: process.env.SERVICE_NAME_API ?? "stagepilot-api",
+    status: "ok",
     useGpu: false,
   };
 }
